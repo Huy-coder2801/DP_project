@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Customer Potential</title>
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #0779e4 3px solid;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+        header li {
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+        .card {
+            background: #0779e4;
+            color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .form-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-group input, .form-group select {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            border: none;
+            background: #0779e4;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .form-group button:hover {
+            background: #005bb5;
+        }
+        .tab {
+            overflow: hidden;
+            border-bottom: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #ccc;
+        }
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border-top: none;
+        }
+        .title {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2em;
+            color: #0779e4;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/dashboard/">Dashboard</a></li>
+            </ul>
+        </div>
+    </header>
+    <div class="container">
+        <h1 class="title">Predict Customer Potential</h1>
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'CustomerData')">Enter Customer Data</button>
+            <button class="tablinks" onclick="openTab(event, 'UploadCSV')">Upload CSV File</button>
+        </div>
+
+        <div id="CustomerData" class="tabcontent">
+            <div class="form-container">
+                <h1>Enter Customer Data</h1>
+                <form method="post" action="/predict">
+                    <div>
+                        {% for feature in feature_columns %}
+                        <div class="form-group">
+                            <label for="{{ feature }}">{{ feature }}</label>
+                            <input type="text" id="{{ feature }}" name="{{ feature }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Select Model</label>
+                        <select id="model" name="model">
+                            {% for model in models %}
+                            <option value="{{ model }}">{{ model }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Predict</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="UploadCSV" class="tabcontent">
+            <div class="form-container">
+                <h1>Upload CSV File</h1>
+                <form method="post" action="/upload" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Choose CSV File</label>
+                        <input type="file" id="file" name="file" accept=".csv">
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Select Model</label>
+                        <select id="model" name="model">
+                            {% for model in models %}
+                            <option value="{{ model }}">{{ model }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Upload and Predict</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelector('.tablinks').click();
+        });
+    </script>
+</body>
+</html>
