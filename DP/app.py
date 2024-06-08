@@ -1,4 +1,3 @@
-# Import cần thiết
 from flask import Flask, render_template, request, redirect, url_for, send_file
 import pandas as pd
 import joblib
@@ -73,6 +72,50 @@ def render_content(tab):
                                                  values=uploaded_df['ordered'].value_counts().values.tolist())])
             fig_ordered.update_layout(title='Ordered Distribution')
 
+            # Fig 3
+            action_counts = uploaded_df[feature_columns].sum()
+            fig3 = go.Figure(data=[
+                go.Bar(
+                    x=action_counts.nlargest(5).index,  
+                    y=action_counts.nlargest(5),     
+                    marker=dict(color='rgb(158,202,225)', line=dict(color='rgb(8,48,107)',width=1.5)),
+                    opacity=0.6
+                )
+            ])
+            fig3.update_layout(
+                title='Top 5 Most Frequent User Actions',
+                xaxis=dict(
+                    title='Action'
+                ),
+                yaxis=dict(
+                    title='Frequency'
+                )
+            )
+
+            # Fig 4
+            device_counts = uploaded_df[['device_mobile', 'device_computer', 'device_tablet']].sum()
+            fig4 = go.Figure(data=[go.Pie(labels=device_counts.index,
+                             values=device_counts.values,
+                             hole=.3)])
+            fig4.update_layout(title='Device Usage Distribution')
+
+            # Fig 5
+            total_basket_add_detail = uploaded_df['basket_add_detail'].sum()
+            total_saw_checkout = uploaded_df['saw_checkout'].sum()
+            fig5 = go.Figure(data=[go.Bar(x=['Saw Basket Add Detail', 'Saw Checkout'],
+                             y=[total_basket_add_detail, total_saw_checkout],
+                             marker_color=['blue', 'green'])])
+            fig5.update_layout(title='Total Saw Basket Add Detail vs Total Saw Checkout',
+                  xaxis_title='Actions',
+                  yaxis_title='Total Count')
+            
+            # Fig 6
+            feature_corr = uploaded_df[feature_columns].corr()
+            fig6 = go.Figure(data=go.Heatmap(z=feature_corr.values,
+                                                    x=feature_corr.columns,
+                                                    y=feature_corr.index))
+            fig6.update_layout(title='Correlation Heatmap of Feature Variables')
+
             return html.Div([
                 html.Div([
                     html.H3('Total Customers'),
@@ -86,8 +129,14 @@ def render_content(tab):
                     html.H3('Potential Rate'),
                     html.P(f'{potential_rate:.2%}')
                 ], className='card'),
-                dcc.Graph(figure=fig_pie),
-                dcc.Graph(figure=fig_ordered)
+                html.Div([
+                    dcc.Graph(figure=fig_pie, className='dash-item'),
+                    dcc.Graph(figure=fig_ordered, className='dash-item'),
+                    dcc.Graph(figure=fig3, className='dash-item'),
+                    dcc.Graph(figure=fig4, className='dash-item'),
+                    dcc.Graph(figure=fig5, className='dash-item'),
+                    dcc.Graph(figure=fig6, className='dash-item')
+                ], className='dash-list'),
             ])
         elif tab == 'tab-detailed':
             graphs = []
@@ -96,8 +145,8 @@ def render_content(tab):
                     fig = go.Figure(data=[go.Pie(labels=uploaded_df[column].value_counts().index.tolist(), 
                                                  values=uploaded_df[column].value_counts().values.tolist())])
                     fig.update_layout(title=f'Distribution of {column}')
-                    graphs.append(dcc.Graph(figure=fig))
-            return html.Div(graphs)
+                    graphs.append(dcc.Graph(figure=fig, className='dash-item'))
+            return html.Div(graphs, className='dash-list')
     return html.Div()
 
 @app.route('/')

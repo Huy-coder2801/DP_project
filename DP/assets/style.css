@@ -1,0 +1,15 @@
+.dash-list {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.dash-item {
+    width: 48%;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+}
